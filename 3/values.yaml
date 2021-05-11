@@ -1,0 +1,107 @@
+# Default values for kube-syntheia-stack.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+## Provide a name in place of kube-syntheia-stack for `app:` labels
+##
+nameOverride: ""
+## Override the deployment namespace
+namespaceOverride: ""
+## Labels to apply to all resources
+commonLabels: {}
+# scmhash: useMe
+# myLabel: useMe
+
+nginx:
+  enabled: true
+  replicas: 1
+   ## Labels to add to the operator pod
+  podLabels: {}
+  priorityClassName: ""  
+  resources: {}
+    # requests:
+    #   memory: "512Mi"
+    #   cpu: "256m"
+    # limits:
+    #   memory: "512Mi"
+    #   cpu: "256m"
+  securityContext:
+    fsGroup: 65534
+    runAsGroup: 65534
+    runAsNonRoot: true
+    runAsUser: 65534
+  image:
+    repository: nginx
+    tag: staging
+    sha: ""
+    pullPolicy: Always
+    priorityClassName: ""
+    podAnnotations: {}
+    nodeSelector: {}
+    affinity: {}
+    tolerations: []
+    containerPort : 80
+    #registryPassword: eyJhdXRocyI6eyJodHRwczovL2luZGV4LmRvY2tlci5pby92MS8iOnsidXNlcm5hbWUiOiJzeW50aGVpYSIsInBhc3N3b3JkIjoidzNtNHluMHRrMzNwdGgxUyIsImVtYWlsIjoiamFzc2VyLmdhcmNpYUBnbWFpbC5jb20iLCJhdXRoIjoiYzNsdWRHaGxhV0U2ZHpOdE5IbHVNSFJyTXpOd2RHZ3hVdz09In19fQ==
+  env:
+    ENV_VAR: soy una variable de ambiente
+  service:
+    annotations: {}
+    labels: {}
+    clusterIP: ""
+    port: 80
+    targetPort: 80
+
+  ## Port to expose on each node
+  ## Only used if service.type is 'NodePort'
+  ##
+    nodePort: 30080
+    nodePortTls: 30443
+
+  ## Additional ports to open for Prometheus service
+  ## ref: https://kubernetes.io/docs/concepts/services-networking/service/#multi-port-services
+  ##
+    additionalPorts: []
+
+  ## Loadbalancer IP
+  ## Only use if service.type is "LoadBalancer"
+  ##
+    loadBalancerIP: ""
+    loadBalancerSourceRanges: []
+
+  ## Service type
+  ## NodePort, ClusterIP, LoadBalancer
+  ##
+    type: ClusterIP
+
+    ## List of IP addresses at which the Prometheus server service is available
+    ## Ref: https://kubernetes.io/docs/user-guide/services/#external-ips
+    ##
+    externalIPs: []
+
+  
+  namespaces: {}
+    # releaseNamespace: true
+    # additional:
+    # - kube-system
+  ## Namespaces not to scope the interaction of the Prometheus Operator (deny list).
+  ##
+  denyNamespaces: []
+  tolerations: []
+    # - key: "key"
+    #   operator: "Equal"
+    #   value: "value"
+    #   effect: "NoSchedule" 
+  affinity: {}
+  # nodeAffinity:
+  #   requiredDuringSchedulingIgnoredDuringExecution:
+  #     nodeSelectorTerms:
+  #     - matchExpressions:
+  #       - key: kubernetes.io/e2e-az-name
+  #         operator: In
+  #         values:
+  #         - e2e-az1
+  #         - e2e-az2
+  nodeSelector: {}
+
+
+

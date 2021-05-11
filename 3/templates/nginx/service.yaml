@@ -1,0 +1,45 @@
+{{- if .Values.nginx.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "kube-df-stack.fullname" . }}-nginx
+  namespace: {{ template "kube-df-stack.namespace" . }}
+  labels:
+    app: {{ template "kube-df-stack.name" . }}-nginx
+{{ include "kube-df-stack.labels" . | indent 4 }}
+{{- if .Values.nginx.service.labels }}
+{{ toYaml .Values.nginx.service.labels | indent 4 }}
+{{- end }}
+{{- if .Values.nginx.service.annotations }}
+  annotations:
+{{ toYaml .Values.nginx.service.annotations | indent 4 }}
+{{- end }}
+spec:
+{{- if .Values.nginx.service.clusterIP }}
+  clusterIP: {{ .Values.nginx.service.clusterIP }}
+{{- end }}
+{{- if .Values.nginx.service.externalIPs }}
+  externalIPs:
+{{ toYaml .Values.nginx.service.externalIPs | indent 4 }}
+{{- end }}
+{{- if .Values.nginx.service.loadBalancerIP }}
+  loadBalancerIP: {{ .Values.nginx.service.loadBalancerIP }}
+{{- end }}
+{{- if .Values.nginx.service.loadBalancerSourceRanges }}
+  loadBalancerSourceRanges:
+  {{- range $cidr := .Values.nginx.service.loadBalancerSourceRanges }}
+    - {{ $cidr }}
+  {{- end }}
+{{- end }}
+  ports:
+  - name: http
+   {{- if eq .Values.nginx.service.type "NodePort" }}
+    nodePort: {{ .Values.nginx.service.nodePort }}
+    {{- end }}
+    port: {{ .Values.nginx.service.port }}
+    targetPort: {{ .Values.nginx.service.targetPort }}
+  selector:
+    app: {{ template "kube-df-stack.name" . }}-nginx
+    release: {{ $.Release.Name | quote }}
+  type: "{{ .Values.nginx.service.type }}"
+{{- end }}

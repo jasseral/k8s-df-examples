@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: syntheia-argocd-ingress
+  namespace: argocd
+  annotations:
+    kubernetes.io/ingress.class: nginx #Class of the controlleer 
+    cert-manager.io/cluster-issuer: letsencrypt-issuer #Name of the resource ClusterIssuer
+    nginx.ingress.kubernetes.io/proxy-body-size: "0" #Added no limit for transfer  
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+
+spec:
+  tls:
+  - hosts:
+    - argocd.jassergarcia.com
+    # The subdomains is possible to concatenated into a simple cert
+    secretName: argocd-ingress-tls # Name of the secret where certificate generated will be stored
+  rules:
+  - host: argocd.jassergarcia.com
+    http:
+      paths:
+      - backend:
+          serviceName: argocd-server
+          servicePort: 80

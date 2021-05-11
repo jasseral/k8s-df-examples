@@ -1,0 +1,63 @@
+{{- if .Values.nginx.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "kube-df-stack.fullname" . }}-nginx
+  namespace: {{ template "kube-df-stack.namespace" . }}
+  labels:
+    app: {{ template "kube-df-stack.name" . }}-nginx
+{{- include "kube-df-stack.labels" . | indent 4 }}
+spec:
+  replicas: {{ .Values.nginx.replicas }}
+  selector:
+    matchLabels:
+      app: {{ template "kube-df-stack.name" . }}-nginx
+      release: {{ $.Release.Name | quote }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "kube-df-stack.name" . }}-nginx
+{{- include "kube-df-stack.labels" . | indent 8 }}
+{{- if .Values.nginx.podLabels }}
+{{ toYaml .Values.nginx.podLabels | indent 8 }}
+{{- end }}
+{{- if .Values.nginx.image.podAnnotations }}
+      annotations:
+{{ toYaml .Values.nginx.image.podAnnotations | indent 8 }}
+{{- end }}
+    spec:
+      imagePullSecrets:
+        - name: {{ template "kube-df-stack.fullname" . }}-common-regcred
+    {{- if .Values.nginx.image.priorityClassName }}
+      priorityClassName: {{ .Values.nginx.image.priorityClassName }}
+    {{- end }}
+      containers:
+        - name: {{ template "kube-df-stack.name" . }}
+          image: {{ .Values.nginx.image.repository }}
+          imagePullPolicy: {{ .Values.nginx.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.nginx.image.containerPort }}
+              name: http
+          env:
+          - name: ENV_VAR
+            value: "{{ .Values.nginx.env.ENV_VAR }}"
+          {{- if .Values.nginx.resources }}
+          resources:
+{{ toYaml .Values.nginx.resources | indent 12 }}
+          {{- end }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+          {{- with .Values.nginx.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.nginx.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.nginx.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+{{- end }}
